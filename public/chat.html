@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astro AI Assistant</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at top, #1a1a2e 0%, #0a0a0f 70%);
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        .floating-orbs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(1px);
+            animation: float-orb 20s infinite linear;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            top: 20%;
+            left: 10%;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(118, 75, 162, 0.15) 0%, transparent 70%);
+            top: 60%;
+            right: 20%;
+            animation-duration: 30s;
+            animation-direction: reverse;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(176, 106, 179, 0.08) 0%, transparent 70%);
+            top: 10%;
+            right: 10%;
+            animation-duration: 35s;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            padding: 1rem 2rem;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 400;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            color: rgba(102, 126, 234, 0.9);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 1);
+        }
+
+        /* Main Chat Container */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 80px;
+        }
+
+        /* Chat Header */
+        .chat-header {
+            padding: 2rem 2rem 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ai-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            animation: pulse-glow 2s infinite;
+        }
+
+        .chat-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(102, 126, 234, 0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+        }
+
+        /* Chat Messages Area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 1rem;
+            max-width: 80%;
+            animation: slide-in 0.3s ease;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.9));
+        }
+
+        .message.user .message-avatar {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-bubble {
+            padding: 1rem 1.5rem;
+            border-radius: 18px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .message.ai .message-bubble {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 18px 18px 18px 4px;
+        }
+
+        .message.user .message-bubble {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px 18px 4px 18px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 0.5rem;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 18px 18px 18px 4px;
+            max-width: fit-content;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.8);
+            animation: typing-bounce 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* Welcome Message */
+        .welcome-message {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .welcome-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .suggestion-chip {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .suggestion-chip:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Chat Input Area */
+        .chat-input-container {
+            padding: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 10, 15, 0.5);
+            backdrop-filter: blur(20px);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .input-field {
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 1rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus-within {
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            min-height: 24px;
+            max-height: 120px;
+            line-height: 1.5;
+        }
+
+        .chat-input:focus {
+            outline: none;
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+
+        .voice-btn, .send-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .voice-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .voice-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.05);
+        }
+
+        .voice-btn.recording {
+            background: linear-gradient(135deg, rgba(255, 100, 100, 0.8), rgba(255, 50, 50, 1));
+            color: white;
+            animation: pulse-recording 1s infinite;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 1));
+            color: white;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Voice Animation */
+        .voice-wave {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            border: 2px solid rgba(255, 100, 100, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: voice-wave 2s infinite;
+            opacity: 0;
+        }
+
+        .voice-btn.recording .voice-wave {
+            opacity: 1;
+        }
+
+        /* Scrollbar Styling */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.7);
+        }
+
+        /* Animations */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes float-orb {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(102, 126, 234, 0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes slide-in {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes typing-bounce {
+            0%, 80%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: translateY(-6px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse-recording {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes voice-wave {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Generate more stars */
+        .star:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .star:nth-child(2) { top: 30%; left: 80%; animation-delay: 1s; }
+        .star:nth-child(3) { top: 60%; left: 20%; animation-delay: 2s; }
+        .star:nth-child(4) { top: 80%; left: 70%; animation-delay: 0.5s; }
+        .star:nth-child(5) { top: 10%; left: 60%; animation-delay: 1.5s; }
+        .star:nth-child(6) { top: 70%; left: 90%; animation-delay: 2.5s; }
+        .star:nth-child(7) { top: 40%; left: 50%; animation-delay: 0.8s; }
+        .star:nth-child(8) { top: 85%; left: 30%; animation-delay: 1.8s; }
+        .star:nth-child(9) { top: 15%; left: 25%; animation-delay: 3s; }
+        .star:nth-child(10) { top: 55%; left: 75%; animation-delay: 1.2s; }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .nav-links {
+                display: none;
+            }
+
+            .chat-container {
+                padding-top: 70px;
+            }
+
+            .chat-messages {
+                padding: 1rem;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .chat-input-container {
+                padding: 1rem;
+            }
+
+            .welcome-suggestions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .suggestion-chip {
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .chat-header {
+                padding: 1rem;
+            }
+
+            .chat-title {
+                font-size: 1.4rem;
+            }
+
+            .input-field {
+                padding: 0.75rem 1rem;
+            }
+
+            .voice-btn, .send-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="stars">
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+        </div>
+        <div class="floating-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">Astro AI</div>
+            <div class="nav-links">
+                <a href="/home" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Chat</a>
+                <a href="/home#testimonials" class="nav-link">Reviews</a>
+            </div>
+            <div class="user-section">
+                <img id="userAvatar" class="user-avatar" src="" alt="User Avatar" style="display: none;">
+                <span id="userName"></span>
+                <a href="/home" class="back-btn">
+                    ← Back to Home
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Chat Container -->
+    <div class="chat-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <div class="ai-avatar">🤖</div>
+            <h1 class="chat-title">Astro AI Assistant</h1>
+            <p class="chat-subtitle">Your intelligent space exploration companion</p>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <h3 style="margin-bottom: 1rem; color: rgba(255, 255, 255, 0.8);">Welcome to Astro AI!</h3>
+                <p>I'm your personal space exploration assistant. Ask me anything about space missions, astronomy, rocket technology, or just have a casual conversation!</p>
+                
+                <div class="welcome-suggestions">
+                    <div class="suggestion-chip" onclick="sendSuggestion('Tell me about Mars exploration missions')">
+                        Tell me about Mars exploration missions
+                    </div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('How do rockets work?')">
+                        How do rockets work?
+                    </div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('What are exoplanets?')">
+                        What are exoplanets?
+                    </div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('Latest space discoveries')">
+                        Latest space discoveries
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <div class="input-field">
+                    <textarea 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="Ask me anything about space..."
+                        rows="1"
+                    ></textarea>
+                    <div class="input-actions">
+                        <button class="voice-btn" id="voiceBtn" title="Voice input">
+                            🎤
+                            <div class="voice-wave"></div>
+                        </button>
+                        <button class="send-btn" id="sendBtn" title="Send message">
+                            ➤
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let isRecording = false;
+        let recognition = null;
+        let isTyping = false;
+
+        // Check authentication and load user data
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const userParam = urlParams.get('user');
+            
+            // Add debugging
+            console.log('Token:', token);
+            console.log('User param:', userParam);
+            console.log('Session token:', sessionStorage.getItem('token'));
+            
+            if (token && userParam) {
+                currentUser = JSON.parse(decodeURIComponent(userParam));
+                displayUserInfo(currentUser);
+                // Store token for API calls
+                sessionStorage.setItem('token', token);
+                initializeChat();
+                initializeVoiceRecognition();
+                generateMoreStars();
+            } else if (sessionStorage.getItem('token') || token) {
+                // If we have either a session token or URL token, try to fetch profile
+                fetchUserProfile();
+            } else {
+                // Add some debugging and delay before redirect
+                console.log('No authentication found');
+                setTimeout(() => {
+                    alert('Please log in to access the chat');
+                    window.location.href = '/';
+                }, 1000);
+                return; // Don't initialize chat components
+            }
+        });
+
+        function displayUserInfo(user) {
+            currentUser = user;
+            document.getElementById('userName').textContent = user.full_name || user.username;
+            
+            if (user.profile_picture) {
+                const avatar = document.getElementById('userAvatar');
+                avatar.src = user.profile_picture;
+                avatar.style.display = 'block';
+            }
+        }
+
+        async function fetchUserProfile() {
+            try {
+                const token = sessionStorage.getItem('token') || new URLSearchParams(window.location.search).get('token');
+                const response = await fetch('/api/profile', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayUserInfo(data.user);
+                    // Store token if it came from URL
+                    if (!sessionStorage.getItem('token') && token) {
+                        sessionStorage.setItem('token', token);
+                    }
+                    initializeChat();
+                    initializeVoiceRecognition();
+                    generateMoreStars();
+                } else {
+                    throw new Error('Failed to fetch profile');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                sessionStorage.removeItem('token');
+                setTimeout(() => {
+                    alert('Authentication failed. Please log in again.');
+                    window.location.href = '/';
+                }, 1000);
+            }
+        }
+
+        function initializeChat() {
+            const chatInput = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            
+            // Auto-resize textarea
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                
+                // Enable/disable send button
+                sendBtn.disabled = !this.value.trim();
+            });
+
+            // Send message on Enter (Shift+Enter for new line)
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Send button click
+            sendBtn.addEventListener('click', sendMessage);
+        }
+
+        function initializeVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = function() {
+                    isRecording = true;
+                    document.getElementById('voiceBtn').classList.add('recording');
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('chatInput').value = transcript;
+                    
+                    // Auto-resize and enable send button
+                    const chatInput = document.getElementById('chatInput');
+                    chatInput.style.height = 'auto';
+                    chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+                    document.getElementById('sendBtn').disabled = false;
+                };
+
+                recognition.onend = function() {
+                    isRecording = false;
+                    document.getElementById('voiceBtn').classList.remove('recording');
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    isRecording = false;
+                    document.getElementById('voiceBtn').classList.remove('recording');
+                };
+
+                // Voice button click
+                document.getElementById('voiceBtn').addEventListener('click', toggleVoiceRecording);
+            } else {
+                document.getElementById('voiceBtn').style.display = 'none';
+                console.log('Speech recognition not supported');
+            }
+        }
+
+        function toggleVoiceRecording() {
+            if (!recognition) return;
+
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+            
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            
+            // Clear input
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            document.getElementById('sendBtn').disabled = true;
+
+            // Hide welcome message
+            const welcomeMessage = document.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+
+            // Simulate AI response
+            simulateAIResponse(message);
+        }
+
+        function sendSuggestion(suggestion) {
+            document.getElementById('chatInput').value = suggestion;
+            document.getElementById('sendBtn').disabled = false;
+            sendMessage();
+        }
+
+        function addMessage(content, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            const userInitials = currentUser ? 
+                (currentUser.full_name || currentUser.username).split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() :
+                'U';
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    ${sender === 'ai' ? '🤖' : userInitials}
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        ${content}
+                    </div>
+                    <div class="message-time">${currentTime}</div>
+                </div>
+            `;
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai typing-indicator-message';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            isTyping = true;
+            
+            return typingDiv;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.querySelector('.typing-indicator-message');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+            isTyping = false;
+        }
+
+        function simulateAIResponse(userMessage) {
+            // Show typing indicator
+            const typingDiv = showTypingIndicator();
+            
+            // Simulate thinking time
+            setTimeout(() => {
+                removeTypingIndicator();
+                
+                // Generate AI response based on user input
+                const aiResponse = generateAIResponse(userMessage);
+                addMessage(aiResponse, 'ai');
+                
+            }, 1500 + Math.random() * 1000); // 1.5-2.5 seconds
+        }
+
+        function generateAIResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            
+            // Space-related responses
+            if (message.includes('mars')) {
+                return "Mars is fascinating! The Red Planet has been a target for exploration for decades. Recent missions like NASA's Perseverance rover and Ingenuity helicopter have revolutionized our understanding. Mars has evidence of ancient water flows, and we're currently searching for signs of past microbial life. The planet's day is similar to Earth's at 24.6 hours, but a year lasts 687 Earth days. Would you like to know more about specific Mars missions or the planet's geology?";
+            }
+            
+            if (message.includes('rocket')) {
+                return "Rockets work on Newton's third law - for every action, there's an equal and opposite reaction! They burn fuel (like liquid oxygen and rocket-grade kerosene) in a combustion chamber, creating hot gases that shoot out the bottom at incredible speeds. This pushes the rocket upward. Modern rockets like SpaceX's Falcon 9 can even land back on Earth and be reused! The most powerful rocket currently is NASA's SLS (Space Launch System). What aspect of rocket technology interests you most?";
+            }
+            
+            if (message.includes('exoplanet')) {
+                return "Exoplanets are planets orbiting stars other than our Sun! We've discovered over 5,000 confirmed exoplanets so far, with thousands more candidates. The Kepler Space Telescope and now the James Webb Space Telescope are our main planet hunters. Some exoplanets are in the 'habitable zone' where liquid water could exist. Notable ones include Proxima Centauri b (our nearest exoplanet neighbor) and TRAPPIST-1 system with seven Earth-sized worlds! The diversity is incredible - from hot Jupiters to super-Earths.";
+            }
+            
+            if (message.includes('space station') || message.includes('iss')) {
+                return "The International Space Station (ISS) is humanity's outpost in space! It orbits Earth every 90 minutes at about 408 km altitude, traveling at 28,000 km/h. Astronauts conduct experiments in microgravity, study Earth's climate, and test technologies for future deep space missions. The ISS has been continuously inhabited since 2000! China's Tiangong space station is also operational now. These stations are crucial stepping stones for future lunar and Mars missions.";
+            }
+            
+            if (message.includes('black hole')) {
+                return "Black holes are regions where gravity is so strong that nothing, not even light, can escape! They form when massive stars collapse. The Event Horizon Telescope gave us the first image of a black hole in 2019 (M87*). Supermassive black holes sit at the centers of most galaxies, including our Milky Way (Sagittarius A*). They warp spacetime dramatically and are key to understanding Einstein's relativity. Fun fact: if you fell into one, time dilation would make you appear frozen to outside observers!";
+            }
+            
+            if (message.includes('moon')) {
+                return "Our Moon is Earth's only natural satellite and our closest celestial neighbor! It's about 384,400 km away and slowly moving away from us by 3.8 cm per year. The Apollo missions brought back 842 pounds of lunar samples. NASA's Artemis program plans to return humans to the Moon and establish a permanent base. The Moon's gravity causes our ocean tides and helps stabilize Earth's axial tilt. It probably formed from debris after a Mars-sized object hit early Earth!";
+            }
+            
+            if (message.includes('james webb') || message.includes('jwst')) {
+                return "The James Webb Space Telescope is revolutionizing astronomy! Launched in 2021, it's positioned at L2, 1.5 million km from Earth. Its 6.5-meter gold-plated mirror and infrared instruments can see the first galaxies that formed after the Big Bang. JWST has discovered surprisingly massive early galaxies, analyzed exoplanet atmospheres, and captured stunning images of nebulae and star formation. It's like having super-vision that can peer through cosmic dust and back in time!";
+            }
+            
+            if (message.includes('spacex')) {
+                return "SpaceX has transformed space travel! Founded by Elon Musk in 2002, they've achieved incredible milestones: first private company to reach orbit, dock with the ISS, and land rockets for reuse. Their Falcon 9 and Falcon Heavy rockets have dramatically reduced launch costs. The Dragon capsule regularly carries astronauts to the ISS. Starship, their next-generation vehicle, aims to make life multiplanetary with Mars missions. They've also deployed thousands of Starlink satellites for global internet coverage!";
+            }
+            
+            if (message.includes('galaxy') || message.includes('milky way')) {
+                return "Our Milky Way galaxy contains 100-400 billion stars! It's a barred spiral galaxy about 100,000 light-years across. We're located in the Orion Arm, about 26,000 light-years from the galactic center. The Milky Way is on a collision course with the Andromeda Galaxy in about 4.5 billion years - but don't worry, the distances between stars are so vast that actual collisions are unlikely. Our galaxy is part of the Local Group, which contains about 80 galaxies!";
+            }
+
+            if (message.includes('latest') || message.includes('recent') || message.includes('news')) {
+                return "Space exploration is moving fast! Recent highlights include: NASA's DART mission successfully changing an asteroid's trajectory (planetary defense test), the James Webb telescope discovering early massive galaxies that challenge our models, China's successful Mars rover mission, SpaceX's continued ISS missions, and India's Chandrayaan-3 successful Moon landing. Private space companies are expanding rapidly, and NASA's Artemis program is preparing for lunar return missions. What specific area would you like to explore?";
+            }
+            
+            // General conversational responses
+            if (message.includes('hello') || message.includes('hi')) {
+                return "Hello there, space explorer! I'm excited to chat with you about the cosmos. Whether you're curious about distant galaxies, rocket science, or the latest space missions, I'm here to help fuel your curiosity about the universe!";
+            }
+            
+            if (message.includes('thank')) {
+                return "You're very welcome! I love sharing the wonders of space exploration. The universe is full of incredible phenomena and human ingenuity in exploring it never ceases to amaze me. Feel free to ask me anything else about space!";
+            }
+            
+            // Default response for unrecognized topics
+            return "That's an interesting question! While I specialize in space exploration and astronomy topics, I'm happy to discuss a wide range of subjects. Could you tell me more about what you'd like to know? If you're interested in space topics, I can share fascinating information about planets, stars, space missions, rocket technology, or any other cosmic phenomena that spark your curiosity!";
+        }
+
+        function generateMoreStars() {
+            const starsContainer = document.querySelector('.stars');
+            for (let i = 10; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (2 + Math.random() * 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + / to focus input
+            if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+                e.preventDefault();
+                document.getElementById('chatInput').focus();
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+    </script>
+</body>
+</html>
