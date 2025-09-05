@@ -975,19 +975,10 @@
         }
 
         // Replace the existing Get Started button handler with this:
-document.getElementById('getStartedBtn').addEventListener('click', function() {
-    const token = sessionStorage.getItem('token');
-    
-    if (token) {
-        // If user is authenticated, pass the token to chat page
-        window.location.href = `/chat?token=${token}`;
-    } else {
-        // If not authenticated, show login prompt
-        alert('Please log in first to access the chat');
-        // Optionally scroll to login section or redirect
-        document.getElementById('loginForm').scrollIntoView({ behavior: 'smooth' });
-    }
-});
+        function getStarted() {
+           window.location.href = "chat.html"; // change path as needed
+       }
+
 
         // Modal functions
         function openModal(modalId) {
