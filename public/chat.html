@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Astro AI Assistant</title>
+    <title>VOXEN AI Assistant</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -30,7 +30,8 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: radial-gradient(ellipse at top, #1a1a2e 0%, #0a0a0f 70%);
+            background: radial-gradient(ellipse at center, #2a1a4a 0%, #1a0a2a 30%, #0a0a0f 70%);
+            overflow: hidden;
         }
 
         .stars {
@@ -57,14 +58,14 @@
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(1px);
+            filter: blur(2px);
             animation: float-orb 20s infinite linear;
         }
 
         .orb-1 {
             width: 300px;
             height: 300px;
-            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(219, 112, 147, 0.15) 0%, transparent 70%);
             top: 20%;
             left: 10%;
             animation-duration: 25s;
@@ -73,7 +74,7 @@
         .orb-2 {
             width: 200px;
             height: 200px;
-            background: radial-gradient(circle, rgba(118, 75, 162, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(147, 51, 234, 0.2) 0%, transparent 70%);
             top: 60%;
             right: 20%;
             animation-duration: 30s;
@@ -83,7 +84,7 @@
         .orb-3 {
             width: 400px;
             height: 400px;
-            background: radial-gradient(circle, rgba(176, 106, 179, 0.08) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, transparent 70%);
             top: 10%;
             right: 10%;
             animation-duration: 35s;
@@ -113,6 +114,13 @@
             font-size: 1.5rem;
             font-weight: 700;
             color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo span {
+            display: inline-block;
+            animation: typing 3s steps(5, end) forwards;
         }
 
         .nav-links {
@@ -129,7 +137,7 @@
         }
 
         .nav-link:hover {
-            color: rgba(102, 126, 234, 0.9);
+            color: rgba(236, 72, 153, 0.9);
         }
 
         .user-section {
@@ -185,7 +193,7 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 1));
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.9), rgba(147, 51, 234, 1));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -197,7 +205,7 @@
         .chat-title {
             font-size: 1.8rem;
             font-weight: 700;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(102, 126, 234, 0.8));
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(219, 112, 147, 0.8));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -243,7 +251,7 @@
         }
 
         .message.ai .message-avatar {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.9));
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.8), rgba(147, 51, 234, 0.9));
         }
 
         .message.user .message-avatar {
@@ -263,8 +271,8 @@
         }
 
         .message.ai .message-bubble {
-            background: rgba(102, 126, 234, 0.1);
-            border: 1px solid rgba(102, 126, 234, 0.2);
+            background: rgba(236, 72, 153, 0.1);
+            border: 1px solid rgba(236, 72, 153, 0.2);
             border-radius: 18px 18px 18px 4px;
         }
 
@@ -285,8 +293,8 @@
             align-items: center;
             gap: 0.5rem;
             padding: 1rem 1.5rem;
-            background: rgba(102, 126, 234, 0.1);
-            border: 1px solid rgba(102, 126, 234, 0.2);
+            background: rgba(236, 72, 153, 0.1);
+            border: 1px solid rgba(236, 72, 153, 0.2);
             border-radius: 18px 18px 18px 4px;
             max-width: fit-content;
         }
@@ -300,7 +308,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: rgba(102, 126, 234, 0.8);
+            background: rgba(236, 72, 153, 0.8);
             animation: typing-bounce 1.4s infinite;
         }
 
@@ -328,8 +336,8 @@
         }
 
         .suggestion-chip {
-            background: rgba(102, 126, 234, 0.1);
-            border: 1px solid rgba(102, 126, 234, 0.3);
+            background: rgba(236, 72, 153, 0.1);
+            border: 1px solid rgba(236, 72, 153, 0.3);
             color: rgba(255, 255, 255, 0.8);
             padding: 0.75rem 1.5rem;
             border-radius: 20px;
@@ -339,8 +347,8 @@
         }
 
         .suggestion-chip:hover {
-            background: rgba(102, 126, 234, 0.2);
-            border-color: rgba(102, 126, 234, 0.5);
+            background: rgba(236, 72, 153, 0.2);
+            border-color: rgba(236, 72, 153, 0.5);
             transform: translateY(-2px);
         }
 
@@ -372,8 +380,8 @@
         }
 
         .input-field:focus-within {
-            border-color: rgba(102, 126, 234, 0.5);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: rgba(236, 72, 153, 0.5);
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
         }
 
         .chat-input {
@@ -437,13 +445,13 @@
         }
 
         .send-btn {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 1));
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.9), rgba(147, 51, 234, 1));
             color: white;
         }
 
         .send-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 30px rgba(236, 72, 153, 0.4);
         }
 
         .send-btn:disabled {
@@ -481,12 +489,12 @@
         }
 
         .chat-messages::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.5);
+            background: rgba(236, 72, 153, 0.5);
             border-radius: 3px;
         }
 
         .chat-messages::-webkit-scrollbar-thumb:hover {
-            background: rgba(102, 126, 234, 0.7);
+            background: rgba(236, 72, 153, 0.7);
         }
 
         /* Animations */
@@ -502,11 +510,11 @@
 
         @keyframes pulse-glow {
             0%, 100% { 
-                box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+                box-shadow: 0 0 20px rgba(236, 72, 153, 0.3);
                 transform: scale(1);
             }
             50% { 
-                box-shadow: 0 0 30px rgba(102, 126, 234, 0.6);
+                box-shadow: 0 0 30px rgba(236, 72, 153, 0.6);
                 transform: scale(1.05);
             }
         }
@@ -547,6 +555,11 @@
                 transform: translate(-50%, -50%) scale(2);
                 opacity: 0;
             }
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 5ch; }
         }
 
         /* Generate more stars */
@@ -641,7 +654,7 @@
     <!-- Header -->
     <header class="header">
         <nav class="nav">
-            <div class="logo">Astro AI</div>
+            <div class="logo"><span>VOXEN</span></div>
             <div class="nav-links">
                 <a href="/home" class="nav-link">Home</a>
                 <a href="#" class="nav-link">Chat</a>
@@ -662,14 +675,14 @@
         <!-- Chat Header -->
         <div class="chat-header">
             <div class="ai-avatar">🤖</div>
-            <h1 class="chat-title">Astro AI Assistant</h1>
+            <h1 class="chat-title">VOXEN AI Assistant</h1>
             <p class="chat-subtitle">Your intelligent space exploration companion</p>
         </div>
 
         <!-- Chat Messages -->
         <div class="chat-messages" id="chatMessages">
             <div class="welcome-message">
-                <h3 style="margin-bottom: 1rem; color: rgba(255, 255, 255, 0.8);">Welcome to Astro AI!</h3>
+                <h3 style="margin-bottom: 1rem; color: rgba(255, 255, 255, 0.8);">Welcome to VOXEN AI!</h3>
                 <p>I'm your personal space exploration assistant. Ask me anything about space missions, astronomy, rocket technology, or just have a casual conversation!</p>
                 
                 <div class="welcome-suggestions">
@@ -743,12 +756,21 @@
                 fetchUserProfile();
             } else {
                 // Add some debugging and delay before redirect
-                console.log('No authentication found');
-                setTimeout(() => {
-                    alert('Please log in to access the chat');
-                    window.location.href = '/';
-                }, 1000);
-                return; // Don't initialize chat components
+                console.log('⚡ Dev mode: Skipping authentication');
+
+                const devUser = {
+                    username: "dev-user",
+                    full_name: "Developer Mode"
+                };
+                
+                currentUser = devUser;
+                sessionStorage.setItem("token","dev-token");
+                displayUserInfo(devUser);
+
+                initializeChat();
+                initializeVoiceRecognition();
+                generateMoreStars();
+                 // Don't initialize chat components
             }
         });
 
@@ -895,75 +917,29 @@
             }
 
             // Simulate AI response
-            simulateAIResponse(message);
-        }
+            async function simulateAIResponse(userMessage) {
+    const typingDiv = showTypingIndicator();
 
-        function sendSuggestion(suggestion) {
-            document.getElementById('chatInput').value = suggestion;
-            document.getElementById('sendBtn').disabled = false;
-            sendMessage();
-        }
+    try {
+        const response = await fetch("http://localhost:5000/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: userMessage })
+        });
 
-        function addMessage(content, sender) {
-            const chatMessages = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-            
-            const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            const userInitials = currentUser ? 
-                (currentUser.full_name || currentUser.username).split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() :
-                'U';
+        const data = await response.json();
+        removeTypingIndicator();
+        addMessage(data.response, "ai");
 
-            messageDiv.innerHTML = `
-                <div class="message-avatar">
-                    ${sender === 'ai' ? '🤖' : userInitials}
-                </div>
-                <div class="message-content">
-                    <div class="message-bubble">
-                        ${content}
-                    </div>
-                    <div class="message-time">${currentTime}</div>
-                </div>
-            `;
+    } catch (error) {
+        console.error("Error:", error);
+        removeTypingIndicator();
+        addMessage("⚠️ Could not reach server. Make sure backend is running.", "ai");
+    }
+}
 
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function showTypingIndicator() {
-            const chatMessages = document.getElementById('chatMessages');
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message ai typing-indicator-message';
-            typingDiv.innerHTML = `
-                <div class="message-avatar">🤖</div>
-                <div class="message-content">
-                    <div class="typing-indicator">
-                        <div class="typing-dots">
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            chatMessages.appendChild(typingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            isTyping = true;
-            
-            return typingDiv;
-        }
-
-        function removeTypingIndicator() {
-            const typingIndicator = document.querySelector('.typing-indicator-message');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
-            isTyping = false;
-        }
-
-        function simulateAIResponse(userMessage) {
             // Show typing indicator
             const typingDiv = showTypingIndicator();
             
