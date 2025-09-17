@@ -701,7 +701,7 @@
                 </div>
             </div>
         </div>
-
+        <audio id="audioPlayer" controls style="display:none; margin-top:10px;"></audio>
         <!-- Chat Input -->
         <div class="chat-input-container">
             <div class="chat-input-wrapper">
@@ -709,7 +709,7 @@
                     <textarea 
                         id="chatInput" 
                         class="chat-input" 
-                        placeholder="Ask me anything about space..."
+                        placeholder="Ask me anything..."
                         rows="1"
                     ></textarea>
                     <div class="input-actions">
@@ -896,120 +896,65 @@
             }
         }
 
-        function sendMessage() {
-            const chatInput = document.getElementById('chatInput');
-            const message = chatInput.value.trim();
-            
-            if (!message) return;
 
-            // Add user message to chat
-            addMessage(message, 'user');
-            
-            // Clear input
-            chatInput.value = '';
-            chatInput.style.height = 'auto';
-            document.getElementById('sendBtn').disabled = true;
+async function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const message = input.value.trim();
+    if (!message) return;
 
-            // Hide welcome message
-            const welcomeMessage = document.querySelector('.welcome-message');
-            if (welcomeMessage) {
-                welcomeMessage.remove();
-            }
+    // Show user message in chat box
+    const chatBox = document.getElementById("chatBox");
+    const userMsg = document.createElement("div");
+    userMsg.textContent = "🧑 You: " + message;
+    chatBox.appendChild(userMsg);
 
-            // Simulate AI response
-            async function simulateAIResponse(userMessage) {
-    const typingDiv = showTypingIndicator();
+    input.value = "";
 
     try {
-        const response = await fetch("http://localhost:5000/chat", {
+        // Send message to backend
+        const res = await fetch("http://127.0.0.1:8000/api/chat", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ message: userMessage })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
         });
 
-        const data = await response.json();
-        removeTypingIndicator();
-        addMessage(data.response, "ai");
+        if (!res.ok) {
+            throw new Error("❌ Failed to get response from backend");
+        }
+
+        // Backend returns WAV file
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+
+        // Play audio
+        const audioPlayer = document.getElementById("audioPlayer");
+        audioPlayer.src = url;
+        audioPlayer.style.display = "block"; // show player if hidden
+        audioPlayer.play();
+
+        // Show in chat box
+        const botMsg = document.createElement("div");
+        botMsg.innerHTML = "<b>🤖 Bot:</b> 🔊 (playing voice)";
+        chatBox.appendChild(botMsg);
 
     } catch (error) {
         console.error("Error:", error);
-        removeTypingIndicator();
-        addMessage("⚠️ Could not reach server. Make sure backend is running.", "ai");
+        const errorMsg = document.createElement("div");
+        errorMsg.textContent = "⚠️ Error connecting to backend!";
+        chatBox.appendChild(errorMsg);
     }
 }
 
-            // Show typing indicator
-            const typingDiv = showTypingIndicator();
-            
-            // Simulate thinking time
-            setTimeout(() => {
-                removeTypingIndicator();
-                
-                // Generate AI response based on user input
-                const aiResponse = generateAIResponse(userMessage);
-                addMessage(aiResponse, 'ai');
-                
-            }, 1500 + Math.random() * 1000); // 1.5-2.5 seconds
-        }
+// Event listeners OUTSIDE the function
+document.getElementById("sendBtn").addEventListener("click", sendMessage);
+document.getElementById("chatInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault(); // prevent new line
+        sendMessage();
+    }
+});
 
-        function generateAIResponse(userMessage) {
-            const message = userMessage.toLowerCase();
-            
-            // Space-related responses
-            if (message.includes('mars')) {
-                return "Mars is fascinating! The Red Planet has been a target for exploration for decades. Recent missions like NASA's Perseverance rover and Ingenuity helicopter have revolutionized our understanding. Mars has evidence of ancient water flows, and we're currently searching for signs of past microbial life. The planet's day is similar to Earth's at 24.6 hours, but a year lasts 687 Earth days. Would you like to know more about specific Mars missions or the planet's geology?";
-            }
-            
-            if (message.includes('rocket')) {
-                return "Rockets work on Newton's third law - for every action, there's an equal and opposite reaction! They burn fuel (like liquid oxygen and rocket-grade kerosene) in a combustion chamber, creating hot gases that shoot out the bottom at incredible speeds. This pushes the rocket upward. Modern rockets like SpaceX's Falcon 9 can even land back on Earth and be reused! The most powerful rocket currently is NASA's SLS (Space Launch System). What aspect of rocket technology interests you most?";
-            }
-            
-            if (message.includes('exoplanet')) {
-                return "Exoplanets are planets orbiting stars other than our Sun! We've discovered over 5,000 confirmed exoplanets so far, with thousands more candidates. The Kepler Space Telescope and now the James Webb Space Telescope are our main planet hunters. Some exoplanets are in the 'habitable zone' where liquid water could exist. Notable ones include Proxima Centauri b (our nearest exoplanet neighbor) and TRAPPIST-1 system with seven Earth-sized worlds! The diversity is incredible - from hot Jupiters to super-Earths.";
-            }
-            
-            if (message.includes('space station') || message.includes('iss')) {
-                return "The International Space Station (ISS) is humanity's outpost in space! It orbits Earth every 90 minutes at about 408 km altitude, traveling at 28,000 km/h. Astronauts conduct experiments in microgravity, study Earth's climate, and test technologies for future deep space missions. The ISS has been continuously inhabited since 2000! China's Tiangong space station is also operational now. These stations are crucial stepping stones for future lunar and Mars missions.";
-            }
-            
-            if (message.includes('black hole')) {
-                return "Black holes are regions where gravity is so strong that nothing, not even light, can escape! They form when massive stars collapse. The Event Horizon Telescope gave us the first image of a black hole in 2019 (M87*). Supermassive black holes sit at the centers of most galaxies, including our Milky Way (Sagittarius A*). They warp spacetime dramatically and are key to understanding Einstein's relativity. Fun fact: if you fell into one, time dilation would make you appear frozen to outside observers!";
-            }
-            
-            if (message.includes('moon')) {
-                return "Our Moon is Earth's only natural satellite and our closest celestial neighbor! It's about 384,400 km away and slowly moving away from us by 3.8 cm per year. The Apollo missions brought back 842 pounds of lunar samples. NASA's Artemis program plans to return humans to the Moon and establish a permanent base. The Moon's gravity causes our ocean tides and helps stabilize Earth's axial tilt. It probably formed from debris after a Mars-sized object hit early Earth!";
-            }
-            
-            if (message.includes('james webb') || message.includes('jwst')) {
-                return "The James Webb Space Telescope is revolutionizing astronomy! Launched in 2021, it's positioned at L2, 1.5 million km from Earth. Its 6.5-meter gold-plated mirror and infrared instruments can see the first galaxies that formed after the Big Bang. JWST has discovered surprisingly massive early galaxies, analyzed exoplanet atmospheres, and captured stunning images of nebulae and star formation. It's like having super-vision that can peer through cosmic dust and back in time!";
-            }
-            
-            if (message.includes('spacex')) {
-                return "SpaceX has transformed space travel! Founded by Elon Musk in 2002, they've achieved incredible milestones: first private company to reach orbit, dock with the ISS, and land rockets for reuse. Their Falcon 9 and Falcon Heavy rockets have dramatically reduced launch costs. The Dragon capsule regularly carries astronauts to the ISS. Starship, their next-generation vehicle, aims to make life multiplanetary with Mars missions. They've also deployed thousands of Starlink satellites for global internet coverage!";
-            }
-            
-            if (message.includes('galaxy') || message.includes('milky way')) {
-                return "Our Milky Way galaxy contains 100-400 billion stars! It's a barred spiral galaxy about 100,000 light-years across. We're located in the Orion Arm, about 26,000 light-years from the galactic center. The Milky Way is on a collision course with the Andromeda Galaxy in about 4.5 billion years - but don't worry, the distances between stars are so vast that actual collisions are unlikely. Our galaxy is part of the Local Group, which contains about 80 galaxies!";
-            }
 
-            if (message.includes('latest') || message.includes('recent') || message.includes('news')) {
-                return "Space exploration is moving fast! Recent highlights include: NASA's DART mission successfully changing an asteroid's trajectory (planetary defense test), the James Webb telescope discovering early massive galaxies that challenge our models, China's successful Mars rover mission, SpaceX's continued ISS missions, and India's Chandrayaan-3 successful Moon landing. Private space companies are expanding rapidly, and NASA's Artemis program is preparing for lunar return missions. What specific area would you like to explore?";
-            }
-            
-            // General conversational responses
-            if (message.includes('hello') || message.includes('hi')) {
-                return "Hello there, space explorer! I'm excited to chat with you about the cosmos. Whether you're curious about distant galaxies, rocket science, or the latest space missions, I'm here to help fuel your curiosity about the universe!";
-            }
-            
-            if (message.includes('thank')) {
-                return "You're very welcome! I love sharing the wonders of space exploration. The universe is full of incredible phenomena and human ingenuity in exploring it never ceases to amaze me. Feel free to ask me anything else about space!";
-            }
-            
-            // Default response for unrecognized topics
-            return "That's an interesting question! While I specialize in space exploration and astronomy topics, I'm happy to discuss a wide range of subjects. Could you tell me more about what you'd like to know? If you're interested in space topics, I can share fascinating information about planets, stars, space missions, rocket technology, or any other cosmic phenomena that spark your curiosity!";
-        }
 
         function generateMoreStars() {
             const starsContainer = document.querySelector('.stars');
