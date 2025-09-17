@@ -494,7 +494,38 @@ app.get('/home', (req, res) => {
 app.get('/chat', (req, res) => {
     res.sendFile(__dirname + '/public/chat.html');
 });
+// AI Chat route
+app.post('/api/chat', async (req, res) => {
+    try {
+        const { message } = req.body;
+        if (!message) {
+            return res.status(400).json({ error: 'Message is required' });
+        }
 
+        console.log("User message:", message);
+
+        // Example using OpenAI (you can replace with Gemini, etc.)
+        const OpenAI = require("openai");
+        const openai = new OpenAI({
+            apiKey: process.env.OPENAI_API_KEY,
+        });
+
+        const completion = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo", // or gpt-4 if you have access
+            messages: [
+                { role: "system", content: "You are VOXEN, an intelligent space exploration assistant." },
+                { role: "user", content: message }
+            ],
+        });
+
+        const aiReply = completion.choices[0].message.content;
+        res.json({ reply: aiReply });
+
+    } catch (error) {
+        console.error("Chat API error:", error);
+        res.status(500).json({ error: "Failed to fetch AI response" });
+    }
+});
 // Logout route
 app.post('/api/logout', (req, res) => {
     req.logout((err) => {
@@ -504,6 +535,7 @@ app.post('/api/logout', (req, res) => {
         res.json({ message: 'Logout successful' });
     });
 });
+
 
 // Error handling middleware
 app.use((error, req, res, next) => {
